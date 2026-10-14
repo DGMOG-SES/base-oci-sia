@@ -1,0 +1,5 @@
+dados/brutos/
+*.tmp
+.Rhistory
+.RData
+atualizacao.log
