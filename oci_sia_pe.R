@@ -26,9 +26,9 @@ suppressPackageStartupMessages({
 
 CFG <- list(
   uf           = "PE",
-  # Primeiro mês de movimento (processamento) a baixar, AAAA-MM. O grupo 09
-  # passou a ser usado com o PMAE; meses sem OCI apenas geram partição vazia.
-  inicio       = "2024-06",
+  # Primeiro mês de movimento (processamento) a baixar, AAAA-MM. As OCI
+  # começaram a ser registradas em PE na competência 02/2025.
+  inicio       = "2025-02",
   ftp_base     = "ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Dados/",
   extensao     = "dbc",
   prefixo_proc = "09",

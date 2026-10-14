@@ -68,7 +68,7 @@ Rscript oci_sia_pe.R --reprocessar-tudo     # refaz tudo
 Rscript oci_sia_pe.R --inicio=2025-01       # muda o primeiro movimento
 ```
 
-A primeira carga baixa todos os meses desde `inicio` (padrão `2024-06`); cada
+A primeira carga baixa todos os meses desde `inicio` (padrão `2025-02`, quando as OCI começaram em PE); cada
 mês de PE tem dezenas a centenas de MB compactados, então leva um tempo. As
 execuções seguintes só listam o FTP e saem, até aparecer um mês novo.
 
