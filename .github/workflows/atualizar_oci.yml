@@ -34,7 +34,15 @@ jobs:
         with:
           use-public-rspm: true
 
-      - name: Instalar pacotes
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::data.table
+            any::curl
+            any::arrow
+            any::remotes
+
+      - name: Instalar leitor de .dbc
         env:
           GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
