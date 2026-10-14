@@ -35,7 +35,11 @@ jobs:
           use-public-rspm: true
 
       - name: Instalar pacotes
-        run: Rscript instalar_pacotes.R
+        env:
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Rscript instalar_pacotes.R
+          pip install pyreaddbc
 
       - name: Extrair e consolidar
         run: Rscript oci_sia_pe.R ${{ github.event.inputs.argumentos }}
@@ -45,7 +49,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add dados/movimentos dados/controle dados/saida
+          [ -d dados ] || { echo "Nada para publicar."; exit 0; }
+          git add -A dados
           if git diff --cached --quiet; then
             echo "Sem mudanças na base."
           else

@@ -144,10 +144,19 @@ baixar <- function(nome, destino) {
 
 ler_arquivo <- function(caminho) {
   if (grepl("\\.dbc$", caminho, ignore.case = TRUE)) {
-    if (!requireNamespace("read.dbc", quietly = TRUE)) {
-      stop("Pacote read.dbc não instalado. Rode instalar_pacotes.R")
+    if (requireNamespace("read.dbc", quietly = TRUE)) {
+      df <- read.dbc::read.dbc(caminho, as.is = TRUE)
+    } else {
+      # Alternativa: descompacta com o pyreaddbc (pip install pyreaddbc).
+      dbf <- sub("\\.dbc$", ".dbf", caminho, ignore.case = TRUE)
+      on.exit(unlink(dbf))
+      status <- system2("python3", c("-c", shQuote(sprintf(
+        "from pyreaddbc import dbc2dbf; dbc2dbf('%s', '%s')", caminho, dbf))))
+      if (status != 0 || !file.exists(dbf)) {
+        stop("Não foi possível ler .dbc: instale read.dbc (instalar_pacotes.R) ou pyreaddbc")
+      }
+      df <- foreign::read.dbf(dbf, as.is = TRUE)
     }
-    df <- read.dbc::read.dbc(caminho, as.is = TRUE)
   } else {
     df <- foreign::read.dbf(caminho, as.is = TRUE)
   }
