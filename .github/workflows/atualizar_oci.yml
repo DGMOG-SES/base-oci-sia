@@ -6,6 +6,7 @@ on:
     paths:
       - "oci_sia_pe.R"
       - "instalar_pacotes.R"
+      - "dimensoes.R"
       - ".github/workflows/atualizar_oci.yml"
   schedule:
     - cron: "0 10 * * *"   # todo dia às 07h de Brasília; só baixa quando há arquivo novo
@@ -41,6 +42,7 @@ jobs:
             any::curl
             any::arrow
             any::remotes
+            any::jsonlite
 
       - name: Instalar leitor de .dbc
         env:
@@ -51,6 +53,9 @@ jobs:
 
       - name: Extrair e consolidar
         run: Rscript oci_sia_pe.R ${{ github.event.inputs.argumentos }}
+
+      - name: Atualizar tabelas dimensão
+        run: Rscript dimensoes.R
 
       - name: Publicar base no repositório
         if: always()

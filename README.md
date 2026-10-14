@@ -82,6 +82,36 @@ dados/
   saida/oci_sia_pe.csv                  idem em CSV (; e vírgula decimal, UTF-8)
 ```
 
+## Tabelas dimensão
+
+`dimensoes.R` roda logo depois da extração e grava em `dados/dimensoes/`
+(Parquet e CSV). Cada dimensão tem todos os códigos que aparecem na base; o que
+a fonte não reconhece entra como "(não encontrado)", para nenhuma linha sumir.
+
+| Arquivo | Chave | Fonte | Conteúdo |
+|---|---|---|---|
+| `dim_procedimento` | `PA_PROC_ID` | SIGTAP vigente (FTP do DATASUS) | nome da OCI, grupo, subgrupo (especialidade), forma de organização, valores SA/SP |
+| `dim_municipio` | `CO_MUNICIPIO` | base territorial do DATASUS | município, região de saúde, macrorregião, capital, latitude/longitude; inclui `260000` = Gestão Estadual |
+| `dim_estabelecimento` | `PA_CODUNI` | API de dados abertos do CNES | nome fantasia, razão social, CNPJ, esfera, tipo de unidade, coordenadas, município |
+
+Os dados do CNES são consultados de novo a cada 28 dias; estabelecimentos novos
+na base são consultados no mesmo dia.
+
+### Modelo no Power BI
+
+```
+dim_procedimento[PA_PROC_ID]        1 ──* oci_sia_pe[PA_PROC_ID]
+dim_estabelecimento[PA_CODUNI]      1 ──* oci_sia_pe[PA_CODUNI]
+dim_municipio[CO_MUNICIPIO]         1 ──* oci_sia_pe[PA_GESTAO]   (ativo)
+dim_municipio[CO_MUNICIPIO]         1 ──* oci_sia_pe[PA_UFMUN]    (inativo)
+dCalendario[Data]                   1 ──* oci_sia_pe[COMPETENCIA]
+```
+
+O município aparece em dois papéis. O mais simples é carregar `dim_municipio`
+duas vezes, como "Município gestor" e "Município do estabelecimento", cada
+cópia com um relacionamento ativo. Alternativa: um só relacionamento ativo e
+`USERELATIONSHIP` nas medidas que precisarem do outro.
+
 ## Power BI
 
 - Prefira o Parquet: *Obter dados > Parquet*, apontando para `oci_sia_pe.parquet`.
@@ -106,6 +136,4 @@ O DATASUS não tem data fixa de publicação, por isso a checagem é diária.
 
 ## Próximos passos possíveis
 
-- Dimensões com nomes: estabelecimentos (CNES), municípios (IBGE) e
-  procedimentos OCI (SIGTAP), para não mostrar só códigos no painel.
 - Outras UFs: mude `uf` no `CFG`.
