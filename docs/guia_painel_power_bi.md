@@ -113,6 +113,24 @@ RETURN
    **Data/hora automática**. Isso remove as tabelas `LocalDateTable` ocultas.
    Faça isso só depois do passo 4, senão as segmentações ficam sem campo.
 
+### 3.1 (Opcional) Segmentação que abre sempre no mês mais recente
+
+1. Selecione `dCalendario`, clique em *Nova coluna* e cole:
+
+```dax
+Período =
+VAR _ult = EOMONTH ( MAX ( Monitoramento_ATE[Referência] ), 0 )
+RETURN
+    IF ( EOMONTH ( dCalendario[Date], 0 ) = _ult, "Mês mais recente", dCalendario[Mês/Ano] )
+```
+
+2. Use *Classificar por coluna > AnoMês* na coluna nova.
+3. Nas segmentações "Mês/Ano de Referência", tire **Ano** e **Mês** e
+   coloque só `dCalendario[Período]`. Marque **Mês mais recente** e salve.
+
+A cada atualização, o rótulo "Mês mais recente" passa para o novo último mês,
+e a seleção acompanha. Os meses anteriores aparecem como "Jun./2026" etc.
+
 ## 4. Medidas para o texto dinâmico
 
 Na tabela **Medidas**, crie as três medidas abaixo com *Nova medida*.
