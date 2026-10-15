@@ -123,7 +123,7 @@ cópia com um relacionamento ativo. Alternativa: um só relacionamento ativo e
 Duas opções, escolha uma:
 
 1. **GitHub Actions** (`.github/workflows/atualizar_oci.yml`): coloque esta
-   pasta num repositório. O job roda todo dia, só processa quando há arquivo
+   pasta num repositório. O job roda duas vezes por dia (7h17 e 12h17), só processa quando há arquivo
    novo e faz commit de `dados/` no próprio repositório (os dados filtrados de
    OCI são pequenos). Também dá para rodar manualmente pela aba *Actions*.
    Com repositório público, o Power BI lê o CSV/Parquet pela URL *raw*.
@@ -131,7 +131,7 @@ Duas opções, escolha uma:
    local todo dia às 7h. Deixe a pasta dentro do OneDrive/SharePoint para o
    Power BI Service atualizar o relatório a partir dela.
 
-O DATASUS não tem data fixa de publicação, por isso a checagem é diária.
+O DATASUS não tem data fixa de publicação, por isso a checagem é diária. O GitHub pode atrasar ou pular um agendamento quando está sobrecarregado; por isso são dois horários.
 
 ## Próximos passos possíveis
 

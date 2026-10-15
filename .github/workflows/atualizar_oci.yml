@@ -9,7 +9,11 @@ on:
       - "dimensoes.R"
       - ".github/workflows/atualizar_oci.yml"
   schedule:
-    - cron: "0 10 * * *"   # todo dia às 07h de Brasília; só baixa quando há arquivo novo
+    # Duas checagens por dia (07h17 e 12h17 de Brasília). O GitHub atrasa ou pula
+    # agendamentos em horários cheios, como hora cheia; a segunda cobre a primeira.
+    # Só baixa quando há arquivo novo.
+    - cron: "17 10 * * *"
+    - cron: "17 15 * * *"
   workflow_dispatch:
     inputs:
       argumentos:
