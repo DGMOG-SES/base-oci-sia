@@ -109,7 +109,9 @@ atualizacao <- function() {
   data.table(
     ULTIMO_MOVIMENTO   = as.IDate(paste0(substr(mvm, 1, 4), "-", substr(mvm, 5, 6), "-01")),
     ULTIMA_COMPETENCIA = as.IDate(paste0(substr(cmp, 1, 4), "-", substr(cmp, 5, 6), "-01")),
-    DATA_ATUALIZACAO   = as.IDate(format(ultima, tz = "America/Sao_Paulo", "%Y-%m-%d"))
+    DATA_ATUALIZACAO   = as.IDate(format(ultima, tz = "America/Sao_Paulo", "%Y-%m-%d")),
+    # Horário de Brasília, já no formato do texto do painel ("15/10/2026 às 12:20 hrs").
+    TEXTO_ATUALIZACAO  = format(ultima, tz = "America/Sao_Paulo", "%d/%m/%Y \u00e0s %H:%M hrs")
   )
 }
 

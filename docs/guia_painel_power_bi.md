@@ -46,7 +46,8 @@ in
 ## 2. Trocar a origem de `Data_Atualização`
 
 Hoje essa tabela guarda a hora em que o painel foi atualizado. Com a nova
-origem, ela passa a guardar **a data em que a base recebeu dados novos** e
+origem, ela passa a guardar **a data e a hora (de Brasília) em que a base
+recebeu dados novos do DATASUS** e
 **o último mês processado (movimento)**. O nome da tabela e a coluna `Column1`
 continuam iguais, então os cartões de data atuais seguem funcionando.
 
@@ -56,9 +57,8 @@ Selecione **Data_Atualização**, abra o *Editor Avançado* e cole:
 let
     Fonte = Parquet.Document(Binary.Buffer(Web.Contents(
         "https://raw.githubusercontent.com/DGMOG-SES/base-oci-sia/main/dados/saida/atualizacao.parquet"))),
-    // O Parquet já traz as colunas como data; não é preciso alterar tipos.
-    Column1 = Table.AddColumn(Fonte, "Column1",
-        each Date.ToText(Date.From([DATA_ATUALIZACAO]), [Format = "dd/MM/yyyy"]), type text)
+    // TEXTO_ATUALIZACAO já vem pronto, no horário de Brasília: "15/10/2026 às 12:20 hrs".
+    Column1 = Table.AddColumn(Fonte, "Column1", each [TEXTO_ATUALIZACAO], type text)
 in
     Column1
 ```
