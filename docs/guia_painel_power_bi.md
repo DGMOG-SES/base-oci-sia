@@ -4,11 +4,19 @@ O painel deixa de ler a planilha do Google mantida à mão. Ele passa a ler as
 tabelas que o GitHub atualiza sozinho todo dia, no repositório
 `DGMOG-SES/base-oci-sia`.
 
-A tabela `monitoramento_ate` foi gerada **com os mesmos nomes de coluna e o
-mesmo conteúdo da planilha antiga**: as 2.206 linhas, de 02/2025 a 07/2026,
-batem com a planilha em executor, região, especialidade, OCI e quantidades.
-Por isso basta trocar a origem das consultas. Os visuais e as medidas continuam
-funcionando sem remapear campo por campo.
+A tabela `monitoramento_ate` foi gerada **com os mesmos nomes de coluna da
+planilha antiga**. Por isso basta trocar a origem das consultas. Os visuais e
+as medidas continuam funcionando sem remapear campo por campo.
+
+**A coluna `Referência` é o mês de processamento (movimento, `PA_MVM`)**, ou
+seja, o mês em que a produção foi processada e paga. Na planilha antiga ela era
+o mês do atendimento (competência). O mês do atendimento continua disponível na
+coluna nova `Competência`. A conferência feita com a planilha, por competência,
+bateu nas 2.206 linhas em executor, região, especialidade, OCI e quantidades.
+Os totais por movimento batem com a base completa.
+
+Um mês de movimento já publicado não muda mais. Já um mês de competência
+continua crescendo quando chegam reapresentações.
 
 > Antes de começar, salve uma cópia do `.pbix`.
 
@@ -25,7 +33,7 @@ let
     Fonte = Parquet.Document(Binary.Buffer(Web.Contents(
         "https://raw.githubusercontent.com/DGMOG-SES/base-oci-sia/main/dados/saida/monitoramento_ate.parquet"))),
     Tipos = Table.TransformColumnTypes(Fonte, {
-        {"Referência", type date},
+        {"Referência", type date}, {"Competência", type date},
         {"Valor Solicitado", Currency.Type}, {"Valor Aprovado", Currency.Type},
         {"Valor Unitário OCI", Currency.Type},
         {"Qtd. Solicitada", Int64.Type}, {"Qtd. Aprovada", Int64.Type}})
@@ -39,7 +47,7 @@ in
 
 Hoje essa tabela guarda a hora em que o painel foi atualizado. Com a nova
 origem, ela passa a guardar **a data em que a base recebeu dados novos** e
-**a última competência da base**. O nome da tabela e a coluna `Column1`
+**o último mês processado (movimento)**. O nome da tabela e a coluna `Column1`
 continuam iguais, então os cartões de data atuais seguem funcionando.
 
 Selecione **Data_Atualização**, abra o *Editor Avançado* e cole:
@@ -49,7 +57,8 @@ let
     Fonte = Parquet.Document(Binary.Buffer(Web.Contents(
         "https://raw.githubusercontent.com/DGMOG-SES/base-oci-sia/main/dados/saida/atualizacao.parquet"))),
     Tipos = Table.TransformColumnTypes(Fonte, {
-        {"ULTIMA_COMPETENCIA", type date}, {"DATA_ATUALIZACAO", type date}}),
+        {"ULTIMO_MOVIMENTO", type date}, {"ULTIMA_COMPETENCIA", type date},
+        {"DATA_ATUALIZACAO", type date}}),
     Column1 = Table.AddColumn(Tipos, "Column1",
         each Date.ToText([DATA_ATUALIZACAO], [Format = "dd/MM/yyyy"]), type text)
 in
@@ -108,7 +117,7 @@ Na tabela **Medidas**, crie as três medidas abaixo com *Nova medida*.
 
 ```dax
 Mês Processado =
-VAR d = MAX ( 'Data_Atualização'[ULTIMA_COMPETENCIA] )
+VAR d = MAX ( 'Data_Atualização'[ULTIMO_MOVIMENTO] )
 RETURN
     SWITCH ( MONTH ( d ),
         1, "Jan.", 2, "Fev.", 3, "Mar.", 4, "Abr.", 5, "Mai.", 6, "Jun.",
@@ -180,6 +189,11 @@ COALESCE (
 ---
 
 ## Diferenças em relação à planilha
+
+- **Referência:** passa a ser o mês de processamento (movimento), e não o mês
+  do atendimento. Os números por mês mudam em relação à planilha, mas o total
+  geral é o mesmo. Há mais linhas (2.333), porque o mesmo atendimento pode ter
+  sido processado em movimentos diferentes.
 
 - **Valor aprovado:** em 3 das 2.206 linhas, todas de Jaboatão dos Guararapes
   (OCI de ginecologia e de câncer colorretal, 12/2025 e 01/2026), a planilha

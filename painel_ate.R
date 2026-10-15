@@ -2,12 +2,14 @@
 # ------------------------------------------------------------------------------
 # Tabelas prontas para o painel "Monitoramento ATE em Pernambuco"
 #
-#   monitoramento_ate  mesmo formato (nomes e conteúdo das colunas) da antiga
-#                      planilha Monitoramento_ATE: produção por competência,
-#                      município gestor (executor) e OCI. Assim o painel troca
-#                      só a origem da consulta, sem remapear os visuais.
-#   atualizacao        última competência da base e data da última atualização,
-#                      para os textos dinâmicos do painel.
+#   monitoramento_ate  mesmo formato (nomes das colunas) da antiga planilha
+#                      Monitoramento_ATE, por movimento, competência, município
+#                      gestor (executor) e OCI. "Referência" é o mês de
+#                      processamento (movimento, PA_MVM), que é o mês em que a
+#                      produção foi processada e paga. Assim o painel troca só a
+#                      origem da consulta, sem remapear os visuais.
+#   atualizacao        último movimento e última competência da base e data da
+#                      última atualização, para os textos dinâmicos do painel.
 #
 # Uso: Rscript painel_ate.R   (depois de oci_sia_pe.R e dimensoes.R)
 # ------------------------------------------------------------------------------
@@ -56,10 +58,9 @@ monitoramento_ate <- function() {
   mun  <- ler_csv_br(file.path(dir_dim, "dim_municipio.csv"), c("CO_MUNICIPIO", "CO_MUNICIPIO_IBGE"))
   nomes <- fread("referencias/nomes_oci.csv", colClasses = "character", encoding = "UTF-8")
 
-  # Mesmo recorte da planilha: competência x município gestor x OCI.
   d <- base[, .(QTD_SOL = sum(PA_QTDPRO), QTD_APR = sum(PA_QTDAPR),
                 VAL_SOL = sum(PA_VALPRO), VAL_APR = sum(PA_VALAPR)),
-            by = .(PA_CMP, PA_GESTAO, PA_PROC_ID)]
+            by = .(PA_MVM, PA_CMP, PA_GESTAO, PA_PROC_ID)]
 
   d <- mun[, .(PA_GESTAO = CO_MUNICIPIO, MUNICIPIO, REGIAO_SAUDE)][d, on = "PA_GESTAO"]
   d <- proc[, .(PA_PROC_ID, NO_PROCEDIMENTO, NO_SUB_GRUPO)][d, on = "PA_PROC_ID"]
@@ -77,8 +78,10 @@ monitoramento_ate <- function() {
   out <- d[, .(
     `PA_UFMUN,C,6`     = PA_GESTAO,
     `PA_CMP,C,6`       = PA_CMP,
+    `PA_MVM`           = PA_MVM,
     `PA_PROC_ID,C,10`  = PA_PROC_ID,
-    `Referência`       = as.IDate(paste0(substr(PA_CMP, 1, 4), "-", substr(PA_CMP, 5, 6), "-01")),
+    `Referência`       = as.IDate(paste0(substr(PA_MVM, 1, 4), "-", substr(PA_MVM, 5, 6), "-01")),
+    `Competência`      = as.IDate(paste0(substr(PA_CMP, 1, 4), "-", substr(PA_CMP, 5, 6), "-01")),
     `Região de Saúde`  = REGIAO,
     `Cod. Município`   = PA_GESTAO,
     `Executor`         = EXECUTOR,
@@ -92,7 +95,7 @@ monitoramento_ate <- function() {
     `Valor Aprovado`   = round(VAL_APR, 2),
     `Valor Unitário OCI` = round(fifelse(QTD_SOL > 0, VAL_SOL / QTD_SOL, NA_real_), 2)
   )]
-  setorderv(out, c("Procedimento OCI", "PA_CMP,C,6", "Cod. Município"))
+  setorderv(out, c("Procedimento OCI", "PA_MVM", "PA_CMP,C,6", "Cod. Município"))
   out
 }
 
@@ -102,9 +105,10 @@ atualizacao <- function() {
   ctrl <- fread(file.path(CFG$dir_dados, "controle", "movimentos_processados.csv"), colClasses = "character")
   ultima <- max(as.POSIXct(ctrl$processado_em, tz = "UTC"))
   cmp <- max(base$PA_CMP)
+  mvm <- max(base$PA_MVM)
   data.table(
+    ULTIMO_MOVIMENTO   = as.IDate(paste0(substr(mvm, 1, 4), "-", substr(mvm, 5, 6), "-01")),
     ULTIMA_COMPETENCIA = as.IDate(paste0(substr(cmp, 1, 4), "-", substr(cmp, 5, 6), "-01")),
-    ULTIMO_MOVIMENTO   = max(base$PA_MVM),
     DATA_ATUALIZACAO   = as.IDate(format(ultima, tz = "America/Sao_Paulo", "%Y-%m-%d"))
   )
 }
