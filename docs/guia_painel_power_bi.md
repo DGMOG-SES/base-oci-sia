@@ -58,7 +58,11 @@ let
     Fonte = Parquet.Document(Binary.Buffer(Web.Contents(
         "https://raw.githubusercontent.com/DGMOG-SES/base-oci-sia/main/dados/saida/atualizacao.parquet"))),
     // TEXTO_ATUALIZACAO já vem pronto, no horário de Brasília: "15/10/2026 às 12:20 hrs".
-    Column1 = Table.AddColumn(Fonte, "Column1", each [TEXTO_ATUALIZACAO], type text)
+    // Se o arquivo vier de um cache antigo, sem a coluna nova, mostra só a data.
+    Column1 = Table.AddColumn(Fonte, "Column1",
+        each try [TEXTO_ATUALIZACAO]
+             otherwise Date.ToText(Date.From([DATA_ATUALIZACAO]), [Format = "dd/MM/yyyy"]),
+        type text)
 in
     Column1
 ```
