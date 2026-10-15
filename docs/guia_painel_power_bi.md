@@ -56,11 +56,9 @@ Selecione **Data_Atualização**, abra o *Editor Avançado* e cole:
 let
     Fonte = Parquet.Document(Binary.Buffer(Web.Contents(
         "https://raw.githubusercontent.com/DGMOG-SES/base-oci-sia/main/dados/saida/atualizacao.parquet"))),
-    Tipos = Table.TransformColumnTypes(Fonte, {
-        {"ULTIMO_MOVIMENTO", type date}, {"ULTIMA_COMPETENCIA", type date},
-        {"DATA_ATUALIZACAO", type date}}),
-    Column1 = Table.AddColumn(Tipos, "Column1",
-        each Date.ToText([DATA_ATUALIZACAO], [Format = "dd/MM/yyyy"]), type text)
+    // O Parquet já traz as colunas como data; não é preciso alterar tipos.
+    Column1 = Table.AddColumn(Fonte, "Column1",
+        each Date.ToText(Date.From([DATA_ATUALIZACAO]), [Format = "dd/MM/yyyy"]), type text)
 in
     Column1
 ```
