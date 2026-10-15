@@ -7,6 +7,8 @@ on:
       - "oci_sia_pe.R"
       - "instalar_pacotes.R"
       - "dimensoes.R"
+      - "painel_ate.R"
+      - "referencias/**"
       - ".github/workflows/atualizar_oci.yml"
   schedule:
     # Duas checagens por dia (07h17 e 12h17 de Brasília). O GitHub atrasa ou pula
@@ -60,6 +62,9 @@ jobs:
 
       - name: Atualizar tabelas dimensão
         run: Rscript dimensoes.R
+
+      - name: Gerar tabelas do painel ATE
+        run: Rscript painel_ate.R
 
       - name: Publicar base no repositório
         if: always()

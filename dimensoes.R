@@ -155,6 +155,11 @@ dim_municipio <- function(codigos) {
                                  CO_REGSAUD = NA, NO_REGSAUD = NA, CO_MACSAUD = NA, NO_MACSAUD = NA)]
   d[is.na(DS_NOME), DS_NOME := paste(CO_MUNICIP, "(não encontrado)")]
 
+  # Nomes oficiais do IBGE, com acento (o DATASUS publica sem acento). Mesma
+  # grafia do mapa de municípios do painel.
+  ibge <- fread("referencias/municipios_pe_ibge.csv", colClasses = "character", encoding = "UTF-8")
+  d[ibge, on = c(CO_MUNICIP = "CO_MUNICIPIO"), DS_NOME := i.MUNICIPIO]
+
   d <- d[, .(CO_MUNICIPIO = CO_MUNICIP, CO_MUNICIPIO_IBGE = CO_MUNICDV, MUNICIPIO = DS_NOME, UF,
              CO_REGIAO_SAUDE = CO_REGSAUD, REGIAO_SAUDE = NO_REGSAUD,
              CO_MACRORREGIAO = CO_MACSAUD, MACRORREGIAO = NO_MACSAUD,
