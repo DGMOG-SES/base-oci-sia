@@ -115,7 +115,8 @@ Na tabela **Medidas**, crie as três medidas abaixo com *Nova medida*.
 
 ```dax
 Mês Processado =
-VAR d = MAX ( 'Data_Atualização'[ULTIMO_MOVIMENTO] )
+VAR d =
+    CALCULATE ( MAX ( Monitoramento_ATE[Referência] ), REMOVEFILTERS () )
 RETURN
     SWITCH ( MONTH ( d ),
         1, "Jan.", 2, "Fev.", 3, "Mar.", 4, "Abr.", 5, "Mai.", 6, "Jun.",
@@ -125,7 +126,7 @@ RETURN
 
 ```dax
 Data Última Atualização =
-FORMAT ( MAX ( 'Data_Atualização'[DATA_ATUALIZACAO] ), "dd/mm/yyyy" )
+MAX ( 'Data_Atualização'[Column1] )
 ```
 
 ```dax
@@ -134,8 +135,10 @@ Texto Atualização =
     & ". Última atualização: " & [Data Última Atualização]
 ```
 
-`Data_Atualização` não tem relacionamento com nenhuma tabela, então essas
-medidas não mudam quando alguém mexe nos filtros.
+`Mês Processado` usa o último mês de `Referência` (movimento) da base inteira,
+ignorando os filtros (`REMOVEFILTERS`). `Data_Atualização` não tem
+relacionamento com nenhuma tabela. Por isso nenhuma das duas medidas muda
+quando alguém mexe nas segmentações.
 
 ## 5. Trocar o texto fixo pelo valor dinâmico
 
