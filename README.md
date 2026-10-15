@@ -36,7 +36,6 @@ As duas opções usam o mesmo leitor (`read.dbc`), então os números são os me
 | `COMPETENCIA`, `MOVIMENTO` | `PA_CMP` e `PA_MVM` como data (dia 1), prontas para o eixo de tempo |
 
 Atenção: `PA_QTDAPR` é a quantidade aprovada; a apresentada é `PA_QTDPRO`.
-Não existe `PA_QTDAPRO` no layout.
 
 A base é agregada por `PA_MVM + PA_CMP + PA_GESTAO + PA_CODUNI + PA_UFMUN + PA_PROC_ID`.
 Para gravar as linhas do SIA sem somar, use `agregar = FALSE` no `CFG`.
