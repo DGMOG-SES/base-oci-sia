@@ -58,12 +58,16 @@ jobs:
           pip install pyreaddbc
 
       - name: Extrair e consolidar
+        id: extrair
         run: Rscript oci_sia_pe.R ${{ github.event.inputs.argumentos }}
 
       - name: Atualizar tabelas dimensão
         run: Rscript dimensoes.R
 
+      # Roda mesmo se a atualização das dimensões falhar (ex.: SIGTAP ou CNES fora do ar),
+      # usando as dimensões já publicadas. A execução continua marcada como falha.
       - name: Gerar tabelas do painel ATE
+        if: always() && steps.extrair.outcome == 'success'
         run: Rscript painel_ate.R
 
       - name: Publicar base no repositório
